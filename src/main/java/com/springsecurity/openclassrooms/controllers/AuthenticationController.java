@@ -21,14 +21,14 @@ public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
     private UserDetailsService userDetailsService;
-    private JWTutils jwTutils;
+    private JWTutils jwtUtils;
 
     @PostMapping("/authenticate")
     public ResponseEntity<String> authenticate(@RequestBody AuthenticationRequest request){
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
         final UserDetails user = userDetailsService.loadUserByUsername(request.getEmail());
         if(user != null){
-            return ResponseEntity.ok(jwTutils.generateToken(user));
+            return ResponseEntity.ok(jwtUtils.generateToken(user));
         }
         return ResponseEntity.status(400).body("Some error has occurred");
     }
