@@ -1,5 +1,6 @@
 package com.springsecurity.openclassrooms.configuration;
 
+import com.springsecurity.openclassrooms.dao.UserDao;
 import jakarta.servlet.Filter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -29,11 +30,9 @@ import java.util.List;
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SpringSecurityConfig {
-    private final Filter jwtAuthFilter;
-    private final static List<UserDetails> APPLICATION_USERS = Arrays.asList(
-            new User("bidule@gmail.com", "password", Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN"))),
-            new User("gigi@soule6tonne.com", "123456", Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")))
-    );
+    private final JWTAuthFilter jwtAuthFilter;
+    private final UserDao userDao;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -74,11 +73,7 @@ public class SpringSecurityConfig {
         return new UserDetailsService() {
             @Override
             public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-                return APPLICATION_USERS
-                        .stream()
-                        .filter(u -> u.getUsername().equals(email))
-                        .findFirst()
-                        .orElseThrow(() -> new UsernameNotFoundException("No user was found"));
+                return userDao.findUserByEmail(email);
             }
         };
     }

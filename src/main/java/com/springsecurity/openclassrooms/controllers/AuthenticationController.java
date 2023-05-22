@@ -2,6 +2,7 @@ package com.springsecurity.openclassrooms.controllers;
 
 
 import com.springsecurity.openclassrooms.configuration.JWTutils;
+import com.springsecurity.openclassrooms.dao.UserDao;
 import com.springsecurity.openclassrooms.dto.AuthenticationRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,13 +21,13 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthenticationController {
 
     private final AuthenticationManager authenticationManager;
-    private UserDetailsService userDetailsService;
-    private JWTutils jwtUtils;
+    private final UserDao userDao;
+    private final JWTutils jwtUtils;
 
     @PostMapping("/authenticate")
     public ResponseEntity<String> authenticate(@RequestBody AuthenticationRequest request){
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword()));
-        final UserDetails user = userDetailsService.loadUserByUsername(request.getEmail());
+        final UserDetails user = userDao.findUserByEmail(request.getEmail());
         if(user != null){
             return ResponseEntity.ok(jwtUtils.generateToken(user));
         }
